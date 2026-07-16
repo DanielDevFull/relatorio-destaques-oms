@@ -1,0 +1,29 @@
+{
+  "name": "relatorio-premium-atividades",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@fontsource-variable/nunito": "latest",
+    "@vitejs/plugin-react": "latest",
+    "html-to-image": "^1.11.13",
+    "lucide-react": "latest",
+    "pptxgenjs": "^4.0.1",
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.7.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.7.0"
+  }
+}
