@@ -1,4 +1,4 @@
-import { ImagePlus, Replace, Trash2, UploadCloud } from 'lucide-react'
+import { ImagePlus, Replace, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { readImageFile } from '../utils/images.js'
 import { PhotoMedia } from './PhotoMedia.jsx'
@@ -66,39 +66,6 @@ export function PhotoField({ label, value, onChange }) {
         onChange={(event) => handleFile(event.target.files?.[0])}
       />
       {error ? <small className="field-error">{error}</small> : null}
-    </div>
-  )
-}
-
-export function LogoField({ label, value, onChange }) {
-  const inputRef = useRef(null)
-
-  async function handleChange(file) {
-    if (!file) return
-    try {
-      onChange((await readImageFile(file)).url)
-    } catch {
-      onChange('')
-    }
-  }
-
-  return (
-    <div className="logo-field">
-      <span>{label}</span>
-      <button type="button" onClick={() => inputRef.current?.click()}>
-        {value ? <img src={value} alt="" /> : <UploadCloud size={18} />}
-        <span>{value ? 'Trocar logo' : 'Adicionar logo'}</span>
-      </button>
-      {value ? (
-        <button className="logo-remove" type="button" onClick={() => onChange('')}>Remover</button>
-      ) : null}
-      <input
-        ref={inputRef}
-        className="visually-hidden"
-        type="file"
-        accept="image/*"
-        onChange={(event) => handleChange(event.target.files?.[0])}
-      />
     </div>
   )
 }
