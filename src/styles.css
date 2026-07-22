@@ -1622,7 +1622,7 @@ button:disabled {
 }
 
 .insight-block h4,
-.progress-meter h4 {
+.gauge-progress h4 {
   margin: 0 0 0.5cqw;
   color: var(--vale-green);
   font-size: clamp(7px, 0.96cqw, 12.5px);
@@ -1641,106 +1641,123 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
-/* --- Medidor de progresso ---------------------------------------------
-   Substitui o velocímetro SVG. A cor sai do estado; a trilha é um passo
-   mais claro da MESMA rampa, para o estado ser legível na barra inteira.
-   O número usa figuras proporcionais (não tabular-nums): em tamanho de
-   display o tabular deixa "100%" frouxo. */
-.progress-meter {
-  --meter-fill: var(--vale-gray);
-  --meter-track: rgba(116, 118, 120, 0.16);
-
+/* --- Velocímetro de progresso ------------------------------------------
+   Estrutura vinda da referência do Figma (anel de traços, arco grosso,
+   ponteiro afilado, cubo). As cores do arco/ponteiro/cubo são atributos
+   SVG definidos no componente a partir do estado — atributo, e não var()
+   em stop-color, porque é o que sobrevive com certeza à rasterização.
+   Aqui ficam só geometria e as cores neutras. */
+.gauge-progress {
   min-height: 0;
   padding-top: 0.65cqw;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.34cqw;
 }
 
-.progress-meter.is-running {
-  --meter-fill: var(--vale-yellow);
-  --meter-track: rgba(236, 177, 31, 0.2);
+.gauge-progress h4 {
+  margin-bottom: 0.35cqw;
 }
 
-.progress-meter.is-complete {
-  --meter-fill: var(--vale-green);
-  --meter-track: rgba(0, 126, 122, 0.14);
+.gauge-chart {
+  width: min(17cqw, 100%);
+  margin: 0 auto;
 }
 
-.progress-meter h4 {
-  margin-bottom: 0.1cqw;
+.gauge-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
 }
 
-/* O número é o protagonista e fica em tinta, não na cor do estado: tinta
-   dá ~16:1 de contraste contra o branco do slide, o verde daria ~5:1 e o
-   amarelo reprovaria. A barra e o rótulo carregam o estado. */
-.meter-value {
-  color: var(--slide-ink);
-  font-size: clamp(15px, 3.05cqw, 40px);
+.gauge-track,
+.gauge-value {
+  fill: none;
+  stroke-width: 15;
+}
+
+.gauge-track {
+  stroke: #e4eaeb;
+  stroke-linecap: round;
+}
+
+.gauge-value {
+  stroke-linecap: round;
+  transition: stroke-dasharray var(--duration-slow) var(--ease-spring-3);
+}
+
+.gauge-tick {
+  stroke: #b6c1c3;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.gauge-tick.is-major {
+  stroke: #7d8b8d;
+  stroke-width: 2.6;
+}
+
+.gauge-needle {
+  stroke: #fff;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+}
+
+.gauge-hub-outer {
+  fill: #fff;
+  stroke-width: 3.4;
+}
+
+.gauge-number,
+.gauge-status {
+  font-family: var(--font-system);
+  dominant-baseline: alphabetic;
+}
+
+.gauge-number {
+  fill: var(--slide-ink);
+  font-size: 30px;
   font-weight: 880;
   letter-spacing: -0.045em;
-  line-height: 0.96;
 }
 
-.meter-track {
-  width: 100%;
-  height: 0.86cqw;
-  min-height: 3px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: var(--meter-track);
-}
-
-.meter-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: var(--meter-fill);
-  transition: width var(--duration-slow) var(--ease-spring-3);
-}
-
-.meter-status {
-  color: var(--slide-ink-muted);
-  font-size: clamp(6px, 0.88cqw, 11.5px);
+.gauge-status {
+  fill: var(--slide-ink-muted);
+  font-size: 12.5px;
   font-weight: 800;
   letter-spacing: 0.012em;
 }
 
 /* Abaixo de ~620px de slide, os pisos de legibilidade do clamp() inflam todo
    o texto acima da proporção (a 391px o corpo renderiza 7px onde o
-   proporcional seria 4.3px). A linha 1fr do medidor é espremida a ~10px e o
-   conteúdo invadiria o bloco de impacto e a faixa de indicadores. Aqui os
-   blocos de texto passam a poder encolher, o medidor garante sua altura de
-   conteúdo e o excedente é aparado em vez de colidir. */
+   proporcional seria 4.3px), espremendo a linha 1fr do gráfico a ~10px. Aqui
+   os blocos de texto passam a poder encolher e o gráfico garante sua altura,
+   em vez de invadir o bloco de impacto e a faixa de indicadores. */
 @container (max-width: 620px) {
+  /* min-content na terceira linha garante a altura do gráfico; as duas
+     primeiras viram 1fr e cedem o que falta, aparando o texto excedente.
+     Com `auto` nas três, o grid encolhia todas proporcionalmente e o
+     gráfico saía espremido para metade do que precisa. */
   .report-insights {
-    grid-template-rows: minmax(0, auto) minmax(0, auto) auto;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) min-content;
   }
 
   .insight-block {
     overflow: hidden;
   }
 
-  .progress-meter {
+  .gauge-progress {
     padding-top: 0.4cqw;
-    gap: 0.25cqw;
   }
 
-  .progress-meter h4 {
+  .gauge-progress h4 {
     font-size: 6.5px;
+    margin-bottom: 1px;
   }
 
-  .meter-value {
-    font-size: 12px;
-  }
-
-  .meter-track {
-    height: 2.5px;
-    min-height: 2.5px;
-  }
-
-  .meter-status {
-    font-size: 6px;
+  .gauge-chart {
+    width: min(15cqw, 100%);
   }
 }
 

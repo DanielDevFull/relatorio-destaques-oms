@@ -1,27 +1,122 @@
+import { useId } from 'react'
 import { ArrowRight, CalendarDays, Clock3, Maximize2, ShieldCheck } from 'lucide-react'
 import { REPORT_LOGO } from '../data.js'
 import { formatDate, progressLabel } from '../utils/formatters.js'
 import { PhotoMedia } from './PhotoMedia.jsx'
 
-// Uma razão única contra um limite pede um medidor, não um velocímetro: o
-// número é o protagonista e a barra dá a leitura periférica. Sem SVG — o
-// medidor é layout puro, o que o torna trivialmente seguro na rasterização.
-function ProgressMeter({ progress }) {
+/* Velocímetro inspirado na referência do Figma (Speedometer, Community).
+   Dela vêm a estrutura: anel de traços finos, arco grosso com gradiente,
+   ponteiro afilado e cubo central proeminente.
+
+   Duas adaptações deliberadas ao contexto:
+   - O original é neon sobre preto. Aqui o slide é branco e é entregável de
+     marca, então o gradiente usa a rampa Vale do estado. O brilho (glow) do
+     original não foi reproduzido: sobre branco ele vira halo sujo, e é feito
+     de blur — que arrisca a rasterização do PPTX.
+   - Sem rótulos numéricos de escala. Eram eles que descentravam o desenho
+     antigo ("100" puxava 2.1u à direita de "0"); só traços deixa a geometria
+     simétrica por construção. */
+const GAUGE = {
+  cx: 120,
+  cy: 120,
+  radius: 86,
+  tickCount: 41,
+  needleLength: 58,
+}
+
+const GAUGE_RAMP = {
+  idle: { from: '#9aa3a5', to: '#747678' },
+  running: { from: '#ffc94a', to: '#ecb11f' },
+  complete: { from: '#12a8a2', to: '#007e7a' },
+}
+
+// 0% aponta para a esquerda (180°) e 100% para a direita (360°).
+function polar(radius, percent) {
+  const angle = Math.PI + (Math.PI * percent) / 100
+  return {
+    x: GAUGE.cx + radius * Math.cos(angle),
+    y: GAUGE.cy + radius * Math.sin(angle),
+  }
+}
+
+function needlePoints(percent) {
+  const tip = polar(GAUGE.needleLength, percent)
+  const left = polar(4.6, percent + 50)
+  const right = polar(4.6, percent - 50)
+  return `${tip.x},${tip.y} ${left.x},${left.y} ${right.x},${right.y}`
+}
+
+const ARC_PATH = `M ${polar(GAUGE.radius, 0).x} ${GAUGE.cy}
+  A ${GAUGE.radius} ${GAUGE.radius} 0 0 1 ${polar(GAUGE.radius, 100).x} ${GAUGE.cy}`
+
+function SpeedometerProgress({ progress }) {
   const normalized = Math.max(0, Math.min(100, Number(progress) || 0))
   const status = progressLabel(normalized)
   const state = normalized >= 100 ? 'complete' : normalized > 0 ? 'running' : 'idle'
+  const ramp = GAUGE_RAMP[state]
+  const gradientId = `gauge-${useId().replaceAll(':', '')}`
 
   return (
     <section
-      className={`progress-meter is-${state}`}
+      className={`gauge-progress is-${state}`}
       aria-label={`Progresso da OM: ${normalized}% ${status}`}
     >
       <h4>Progresso da OM</h4>
-      <strong className="meter-value">{normalized}%</strong>
-      <div className="meter-track" aria-hidden="true">
-        <div className="meter-fill" style={{ width: `${normalized}%` }} />
+      <div className="gauge-chart">
+        {/* viewBox simétrico em torno de x=120 por construção */}
+        <svg viewBox="20 20 200 162" aria-hidden="true">
+          <defs>
+            <linearGradient id={gradientId} x1="34" y1="120" x2="206" y2="120" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor={ramp.from} />
+              <stop offset="1" stopColor={ramp.to} />
+            </linearGradient>
+          </defs>
+
+          <path className="gauge-track" d={ARC_PATH} pathLength="100" />
+          {normalized > 0 ? (
+            <path
+              className="gauge-value"
+              d={ARC_PATH}
+              pathLength="100"
+              stroke={`url(#${gradientId})`}
+              style={{ strokeDasharray: `${normalized} 100` }}
+            />
+          ) : null}
+
+          <g className="gauge-ticks">
+            {Array.from({ length: GAUGE.tickCount }, (_, index) => {
+              const value = (index / (GAUGE.tickCount - 1)) * 100
+              const major = index % 10 === 0
+              const inner = polar(major ? 58 : 64, value)
+              const outer = polar(71, value)
+              return (
+                <line
+                  key={value}
+                  className={major ? 'gauge-tick is-major' : 'gauge-tick'}
+                  x1={inner.x}
+                  y1={inner.y}
+                  x2={outer.x}
+                  y2={outer.y}
+                />
+              )
+            })}
+          </g>
+
+          <polygon className="gauge-needle" points={needlePoints(normalized)} fill={ramp.to} />
+          <circle className="gauge-hub-outer" cx={GAUGE.cx} cy={GAUGE.cy} r="10.5" stroke={ramp.to} />
+          <circle className="gauge-hub-inner" cx={GAUGE.cx} cy={GAUGE.cy} r="4.4" fill={ramp.to} />
+
+          {/* Leitura abaixo do cubo, fora do semicírculo: o ponteiro varre
+              todo o interior do arco, então qualquer texto ali seria
+              atravessado por ele em algum valor. */}
+          <text className="gauge-number" x={GAUGE.cx} y="157" textAnchor="middle">
+            {normalized}%
+          </text>
+          <text className="gauge-status" x={GAUGE.cx} y="175" textAnchor="middle">
+            {status}
+          </text>
+        </svg>
       </div>
-      <span className="meter-status">{status}</span>
     </section>
   )
 }
@@ -87,7 +182,7 @@ export function ReportPreview({ report }) {
             <h4>Impacto</h4>
             <p>{report.impact || 'Adicione o impacto gerado pela entrega.'}</p>
           </section>
-          <ProgressMeter progress={report.progress} />
+          <SpeedometerProgress progress={report.progress} />
         </aside>
       </section>
 
