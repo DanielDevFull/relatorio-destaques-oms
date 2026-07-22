@@ -1,12 +1,18 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertTriangle, Camera, Download, FileText, Monitor } from 'lucide-react'
 import { AppHeader } from './components/AppHeader.jsx'
+import { ClosingPage } from './components/ClosingPage.jsx'
+import { CoverPage } from './components/CoverPage.jsx'
 import { EditorPanel } from './components/EditorPanel.jsx'
 import { PreviewToolbar } from './components/PreviewToolbar.jsx'
 import { SlidePreviewItem } from './components/SlidePreviewItem.jsx'
 import { useReportState } from './hooks/useReportState.js'
 import { safeFileName } from './utils/formatters.js'
+import { summarizePresentation } from './utils/summary.js'
 import { downloadPresentationAsPptx, downloadSlideAsPng } from './utils/exportSlide.js'
+
+const COVER_ID = '__cover__'
+const CLOSING_ID = '__closing__'
 
 function scrollToSlide(slideId) {
   window.requestAnimationFrame(() => {
@@ -22,7 +28,9 @@ export default function App() {
     slides,
     activeSlideId,
     report,
+    deck,
     updateField,
+    updateDeckField,
     selectReport,
     createNextReport,
     duplicateReport,
@@ -37,6 +45,9 @@ export default function App() {
   const [slideToDelete, setSlideToDelete] = useState(null)
 
   const activeIndex = Math.max(0, slides.findIndex((slide) => slide.id === activeSlideId))
+  const summary = useMemo(() => summarizePresentation(slides), [slides])
+  // A apresentação exportada é sempre capa + OMs + final.
+  const deckSize = slides.length + 2
 
   function handleMobileViewChange(view) {
     setMobileView(view)
@@ -84,15 +95,16 @@ export default function App() {
   async function handleExportPptx() {
     if (exportState === 'pptx' || exportState === 'png') return
     setExportState('pptx')
-    setExportMessage(`Preparando ${slides.length} ${slides.length === 1 ? 'slide 4K' : 'slides 4K'}…`)
+    setExportMessage(`Preparando ${deckSize} slides 4K…`)
     try {
       await downloadPresentationAsPptx({
-        slides,
+        slideIds: [COVER_ID, ...slides.map((slide) => slide.id), CLOSING_ID],
+        title: summary.weekReference,
         fileName: presentationFileName(),
         onProgress: (completed, total) => setExportMessage(`Gerando slide ${completed} de ${total}…`),
       })
       setExportState('success')
-      setExportMessage(`PowerPoint 4K pronto com ${slides.length} ${slides.length === 1 ? 'slide' : 'slides'}.`)
+      setExportMessage(`PowerPoint 4K pronto com ${deckSize} slides, incluindo capa e fecho.`)
       window.setTimeout(() => {
         setExportState('idle')
         setExportMessage('')
@@ -135,7 +147,7 @@ export default function App() {
     <div className="app-shell">
       <AppHeader
         site={report.site}
-        slideCount={slides.length}
+        slideCount={deckSize}
         saveState={saveState}
         mobileView={mobileView}
         onMobileViewChange={handleMobileViewChange}
@@ -147,6 +159,9 @@ export default function App() {
         <EditorPanel
           report={report}
           updateField={updateField}
+          deck={deck}
+          updateDeckField={updateDeckField}
+          summary={summary}
           activeSection={editorSection}
           onSectionChange={setEditorSection}
           slideNumber={activeIndex + 1}
@@ -155,13 +170,21 @@ export default function App() {
         <section className="preview-workspace" aria-label="Pré-visualização da apresentação semanal">
           <PreviewToolbar
             zoom={zoom}
-            slideCount={slides.length}
+            slideCount={deckSize}
             onZoomChange={setZoom}
             onExportPptx={handleExportPptx}
             onExportImage={handleExportImage}
             exportState={exportState}
           />
           <div className="report-stage" style={{ '--report-zoom': zoom / 100 }}>
+            <SlidePreviewItem
+              label="Capa"
+              isActive={editorSection === 'deck'}
+              onSelect={() => setEditorSection('deck')}
+            >
+              <CoverPage deck={deck} summary={summary} />
+            </SlidePreviewItem>
+
             {slides.map((slide, index) => (
               <SlidePreviewItem
                 key={slide.id}
@@ -174,6 +197,14 @@ export default function App() {
                 onDelete={() => handleDeleteReport(slide.id)}
               />
             ))}
+
+            <SlidePreviewItem
+              label="Fecho"
+              isActive={editorSection === 'deck'}
+              onSelect={() => setEditorSection('deck')}
+            >
+              <ClosingPage deck={deck} summary={summary} />
+            </SlidePreviewItem>
           </div>
           <button
             className="mobile-export-button"
@@ -182,7 +213,7 @@ export default function App() {
             disabled={exportState === 'pptx' || exportState === 'png'}
           >
             <Download size={20} />
-            {exportState === 'pptx' ? 'Gerando PowerPoint 4K…' : `Baixar PowerPoint 4K · ${slides.length} ${slides.length === 1 ? 'slide' : 'slides'}`}
+            {exportState === 'pptx' ? 'Gerando PowerPoint 4K…' : `Baixar PowerPoint 4K · ${deckSize} slides`}
           </button>
         </section>
       </main>

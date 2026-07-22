@@ -559,7 +559,7 @@ button:disabled {
   padding: 3px;
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 2px;
   border-radius: var(--radius-sm);
   background: var(--color-fill);
@@ -2395,4 +2395,258 @@ button:disabled {
     border-radius: 0 !important;
     box-shadow: none !important;
   }
+}
+
+/* =========================================================================
+   Capa e página final
+   -------------------------------------------------------------------------
+   Herdam `.report-page`: mesma base 16:9 branca e as MESMAS restrições —
+   nada de backdrop-filter, filter composto ou token de tema aqui dentro,
+   senão a rasterização do PPTX quebra. Medidas em cqw pelo mesmo motivo
+   dos slides de OM: o markup serve a 391px na prévia e a 3840px no export.
+   ========================================================================= */
+
+.report-cover,
+.report-closing {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: 3.2cqw 3.6cqw 2.6cqw;
+}
+
+/* --- Capa -------------------------------------------------------------- */
+
+.cover-head {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cover-head .report-logo {
+  width: 16cqw;
+  height: 4.8cqw;
+}
+
+.cover-title {
+  min-width: 0;
+  align-self: center;
+}
+
+.cover-title h2 {
+  margin: 0;
+  color: var(--vale-green);
+  font-size: clamp(18px, 5.4cqw, 74px);
+  font-weight: 870;
+  letter-spacing: -0.04em;
+  line-height: 0.96;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.cover-title p {
+  margin: 1cqw 0 0;
+  padding-top: 1cqw;
+  max-width: 72%;
+  border-top: max(1px, 0.22cqw) solid var(--vale-yellow);
+  color: var(--slide-ink-soft);
+  font-size: clamp(8px, 1.5cqw, 21px);
+  font-weight: 720;
+  overflow-wrap: anywhere;
+}
+
+.cover-meta {
+  margin-top: 1.6cqw;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.6cqw;
+}
+
+.cover-meta span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2cqw;
+  color: var(--slide-ink);
+  font-size: clamp(8px, 1.32cqw, 18px);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.cover-meta b,
+.closing-people b {
+  color: var(--vale-green);
+  font-size: clamp(6px, 0.86cqw, 11px);
+  font-weight: 830;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.cover-summary {
+  margin-top: 2cqw;
+  padding-top: 1.3cqw;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.2cqw;
+  border-top: max(1px, 0.14cqw) solid var(--vale-green);
+}
+
+.cover-summary div,
+.closing-figures div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25cqw;
+}
+
+.cover-summary strong,
+.closing-figures strong {
+  color: var(--vale-green);
+  font-size: clamp(10px, 2.3cqw, 32px);
+  font-weight: 860;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  overflow-wrap: anywhere;
+}
+
+.cover-summary small,
+.closing-figures small {
+  color: var(--slide-ink-muted);
+  font-size: clamp(6px, 0.86cqw, 11px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* --- Página final ------------------------------------------------------ */
+
+.closing-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.5cqw;
+  padding-bottom: 1cqw;
+  border-bottom: max(1px, 0.14cqw) solid var(--vale-green);
+}
+
+.closing-head h2 {
+  margin: 0;
+  color: var(--vale-green);
+  font-size: clamp(14px, 3.2cqw, 44px);
+  font-weight: 870;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.closing-head p {
+  margin: 0.5cqw 0 0;
+  color: var(--slide-ink-muted);
+  font-size: clamp(6px, 0.96cqw, 13px);
+  font-weight: 720;
+  letter-spacing: 0.018em;
+  text-transform: uppercase;
+}
+
+.closing-head .report-logo {
+  width: 13.8cqw;
+  height: 4.15cqw;
+}
+
+.closing-figures {
+  margin-top: 1.8cqw;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.2cqw;
+}
+
+.closing-safety {
+  margin-top: 1.6cqw;
+  padding: 1.1cqw 1.4cqw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2cqw;
+  border-radius: 0.6cqw;
+  background: rgba(0, 126, 122, 0.07);
+}
+
+.closing-safety strong {
+  color: var(--vale-green-deep);
+  font-size: clamp(9px, 1.8cqw, 25px);
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+.closing-safety small {
+  color: var(--slide-ink-muted);
+  font-size: clamp(6px, 0.86cqw, 11px);
+  font-weight: 780;
+}
+
+.closing-people {
+  margin-top: 1.4cqw;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.1cqw;
+}
+
+.closing-people span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18cqw;
+  color: var(--slide-ink-soft);
+  font-size: clamp(7px, 1.05cqw, 14px);
+  font-weight: 680;
+  overflow-wrap: anywhere;
+}
+
+.closing-message {
+  margin-top: auto;
+  padding-top: 1.2cqw;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5cqw;
+  border-top: max(1px, 0.12cqw) solid var(--vale-green);
+}
+
+.closing-message strong {
+  color: var(--vale-green);
+  font-size: clamp(12px, 2.6cqw, 36px);
+  font-weight: 870;
+  letter-spacing: -0.03em;
+}
+
+.closing-message span {
+  color: var(--slide-ink-muted);
+  font-size: clamp(6px, 0.9cqw, 12px);
+  font-weight: 760;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* Prévia do consolidado no editor (chrome, não é slide — pode usar tokens) */
+.deck-summary-preview {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-tint);
+  color: var(--color-label-secondary);
+  font: var(--text-footnote);
+}
+
+.deck-summary-preview strong {
+  color: var(--color-accent-text);
+  font: var(--text-caption);
+}
+
+/* A folga vertical do fecho tem de ficar na última faixa, não sob os números:
+   com `auto minmax(0,1fr) auto` herdado, a linha 1fr caía sobre os
+   indicadores e abria um vão no meio da página. */
+.report-closing {
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
+}
+
+.closing-message {
+  align-self: end;
 }

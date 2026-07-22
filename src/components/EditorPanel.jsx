@@ -3,6 +3,7 @@ import {
   Camera,
   Images,
   Info,
+  Presentation,
   ShieldCheck,
   UploadCloud,
   UsersRound,
@@ -23,6 +24,7 @@ const sections = [
   { id: 'data', label: 'OM' },
   { id: 'photos', label: 'Fotos' },
   { id: 'team', label: 'Equipe' },
+  { id: 'deck', label: 'Capa' },
 ]
 
 function SectionHeading({ icon: Icon, title, subtitle }) {
@@ -240,7 +242,70 @@ function TeamSection({ report, updateField }) {
   )
 }
 
-export function EditorPanel({ report, updateField, activeSection, onSectionChange, slideNumber, slideCount }) {
+function DeckSection({ deck, updateDeckField, summary }) {
+  return (
+    <>
+      <SectionHeading
+        icon={Presentation}
+        title="Capa e fecho"
+        subtitle="Geradas automaticamente — os números somam das OMs."
+      />
+      <Field label="Título da capa">
+        <TextInput
+          value={deck.coverTitle}
+          onChange={(value) => updateDeckField('coverTitle', value)}
+          placeholder="Ex.: Destaques Operacionais"
+          maxLength="46"
+        />
+      </Field>
+      <Field label="Subtítulo da capa" hint="Vazio usa a linha de serviço das OMs.">
+        <TextInput
+          value={deck.coverSubtitle}
+          onChange={(value) => updateDeckField('coverSubtitle', value)}
+          placeholder={summary.category || 'Serviços Operacionais'}
+          maxLength="70"
+        />
+      </Field>
+
+      <SectionHeading icon={ShieldCheck} title="Página final" />
+      <Field label="Título do fecho">
+        <TextInput
+          value={deck.closingTitle}
+          onChange={(value) => updateDeckField('closingTitle', value)}
+          placeholder="Ex.: Resumo da Semana"
+          maxLength="46"
+        />
+      </Field>
+      <Field label="Mensagem de encerramento">
+        <TextInput
+          value={deck.closingMessage}
+          onChange={(value) => updateDeckField('closingMessage', value)}
+          placeholder="Ex.: Obrigado"
+          maxLength="40"
+        />
+      </Field>
+
+      <div className="deck-summary-preview" aria-label="Consolidado calculado">
+        <strong>Consolidado atual</strong>
+        <span>{summary.omCount} {summary.omCount === 1 ? 'OM' : 'OMs'} · {summary.completedCount} concluída{summary.completedCount === 1 ? '' : 's'}</span>
+        <span>Horas: {summary.actualHours} realizadas / {summary.plannedHours} previstas</span>
+        <span>Área somada: {summary.area} m²</span>
+      </div>
+    </>
+  )
+}
+
+export function EditorPanel({
+  report,
+  updateField,
+  deck,
+  updateDeckField,
+  summary,
+  activeSection,
+  onSectionChange,
+  slideNumber,
+  slideCount,
+}) {
   return (
     <aside className="editor-panel liquid-surface" aria-label="Editor do relatório">
       <div className="editor-tabs" role="tablist" aria-label="Seções do editor">
@@ -267,6 +332,9 @@ export function EditorPanel({ report, updateField, activeSection, onSectionChang
         ) : null}
         {activeSection === 'photos' ? <PhotosSection report={report} updateField={updateField} /> : null}
         {activeSection === 'team' ? <TeamSection report={report} updateField={updateField} /> : null}
+        {activeSection === 'deck' ? (
+          <DeckSection deck={deck} updateDeckField={updateDeckField} summary={summary} />
+        ) : null}
       </div>
     </aside>
   )

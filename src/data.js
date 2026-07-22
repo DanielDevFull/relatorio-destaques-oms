@@ -27,6 +27,16 @@ export const defaultReport = {
   afterPhoto: { type: 'static', url: '/assets/after-example.jpg' },
 }
 
+// Textos da capa e da página final. Vivem no nível da apresentação, não do
+// slide: são uma capa e uma final por deck, e os números delas são somados
+// das OMs (ver utils/summary.js).
+export const defaultDeck = {
+  coverTitle: 'Destaques Operacionais',
+  coverSubtitle: '',
+  closingTitle: 'Resumo da Semana',
+  closingMessage: 'Obrigado',
+}
+
 export const classificationOptions = [
   'Manutenção predial',
   'Manutenção civil',

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { defaultReport, REPORT_LOGO } from '../data.js'
+import { defaultDeck, defaultReport, REPORT_LOGO } from '../data.js'
 import { loadPresentation, savePresentation } from '../utils/presentationStorage.js'
 
 const STORAGE_KEY = 'relatorio-premium:v5'
@@ -21,6 +21,10 @@ function normalizeReport(report = {}) {
   }
 }
 
+function normalizeDeck(deck) {
+  return { ...defaultDeck, ...(deck || {}) }
+}
+
 function loadInitialPresentation() {
   try {
     const storedPresentation = window.localStorage.getItem(STORAGE_KEY)
@@ -31,7 +35,7 @@ function loadInitialPresentation() {
         const activeSlideId = slides.some((slide) => slide.id === parsed.activeSlideId)
           ? parsed.activeSlideId
           : slides[0].id
-        return { slides, activeSlideId }
+        return { slides, activeSlideId, deck: normalizeDeck(parsed.deck) }
       }
     }
 
@@ -42,22 +46,24 @@ function loadInitialPresentation() {
     return {
       slides: [firstSlide],
       activeSlideId: firstSlide.id,
+      deck: normalizeDeck(),
     }
   } catch {
     const firstSlide = normalizeReport(defaultReport)
-    return { slides: [firstSlide], activeSlideId: firstSlide.id }
+    return { slides: [firstSlide], activeSlideId: firstSlide.id, deck: normalizeDeck() }
   }
 }
 
 function normalizePresentation(presentation) {
   if (!Array.isArray(presentation?.slides) || presentation.slides.length === 0) {
     const firstSlide = normalizeReport(defaultReport)
-    return { slides: [firstSlide], activeSlideId: firstSlide.id }
+    return { slides: [firstSlide], activeSlideId: firstSlide.id, deck: normalizeDeck() }
   }
 
   const slides = presentation.slides.map(normalizeReport)
   return {
     slides,
+    deck: normalizeDeck(presentation.deck),
     activeSlideId: slides.some((slide) => slide.id === presentation.activeSlideId)
       ? presentation.activeSlideId
       : slides[0].id,
@@ -147,6 +153,14 @@ export function useReportState() {
     }))
   }, [])
 
+  const updateDeckField = useCallback((field, value) => {
+    setSaveState('saving')
+    setPresentation((current) => ({
+      ...current,
+      deck: { ...normalizeDeck(current.deck), [field]: value },
+    }))
+  }, [])
+
   const selectReport = useCallback((slideId) => {
     setPresentation((current) => (
       current.activeSlideId === slideId
@@ -231,7 +245,9 @@ export function useReportState() {
     slides: presentation.slides,
     activeSlideId: presentation.activeSlideId,
     report: activeReport,
+    deck: normalizeDeck(presentation.deck),
     updateField,
+    updateDeckField,
     selectReport,
     createNextReport,
     duplicateReport,

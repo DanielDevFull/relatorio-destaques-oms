@@ -109,8 +109,11 @@ export async function downloadSlideAsPng(fileName, slideId) {
   link.click()
 }
 
-export async function downloadPresentationAsPptx({ slides, fileName, onProgress }) {
-  if (!slides.length) throw new Error('Nenhum slide disponível para exportação.')
+/* Recebe ids de nó, não objetos de OM: a apresentação exportada é
+   [capa, ...OMs, final], e capa e final não são slides do modelo de dados —
+   têm ids fixos (__cover__ / __closing__). */
+export async function downloadPresentationAsPptx({ slideIds, title, fileName, onProgress }) {
+  if (!slideIds.length) throw new Error('Nenhum slide disponível para exportação.')
 
   const [{ toPng }, pptxModule] = await Promise.all([
     import('html-to-image'),
@@ -123,7 +126,7 @@ export async function downloadPresentationAsPptx({ slides, fileName, onProgress 
   pptx.author = 'GRSA Manutenção Predial'
   pptx.company = 'Grupo GPS | GRSA'
   pptx.subject = 'Resumo semanal das principais OMs executadas — imagens 4K lossless'
-  pptx.title = `Destaques semanais — ${slides[0].weekReference || 'Semana'}`
+  pptx.title = `Destaques semanais — ${title || 'Semana'}`
   pptx.lang = 'pt-BR'
   pptx.theme = {
     headFontFace: 'Nunito',
@@ -138,9 +141,8 @@ export async function downloadPresentationAsPptx({ slides, fileName, onProgress 
     // A captura 4K mantém a logo como fallback se o SVG não puder ser carregado.
   }
 
-  for (let index = 0; index < slides.length; index += 1) {
-    const report = slides[index]
-    const node = findSlideNode(report.id)
+  for (let index = 0; index < slideIds.length; index += 1) {
+    const node = findSlideNode(slideIds[index])
     if (!node) throw new Error(`Prévia do slide ${index + 1} não encontrada.`)
 
     const logoBox = logoSvgData ? getPptxElementBox(node, '.report-logo') : null
@@ -158,7 +160,7 @@ export async function downloadPresentationAsPptx({ slides, fileName, onProgress 
       })
     }
 
-    onProgress?.(index + 1, slides.length)
+    onProgress?.(index + 1, slideIds.length)
   }
 
   await pptx.writeFile({ fileName: `${fileName}.pptx`, compression: true })
