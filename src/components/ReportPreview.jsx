@@ -30,6 +30,21 @@ const GAUGE_RAMP = {
   complete: { from: '#12a8a2', to: '#007e7a' },
 }
 
+/* Tudo que é visual aqui vai como ATRIBUTO SVG, não como CSS.
+   O html-to-image rasteriza o nó fora da tela e as regras de classe não
+   chegam nos filhos do SVG: `fill` volta ao padrão preto (o arco virava um
+   semicírculo preenchido) e `stroke` ao padrão nenhum (os traços sumiam).
+   Ponteiro e cubo já escapavam disso porque usavam atributos — agora todos
+   usam. O CSS restante cuida só de transição e tipografia. */
+const GAUGE_PAINT = {
+  arcWidth: 15,
+  track: '#e4eaeb',
+  tick: '#b6c1c3',
+  tickMajor: '#7d8b8d',
+  ink: '#0d1c1e',
+  inkMuted: '#5c6b6e',
+}
+
 // 0% aponta para a esquerda (180°) e 100% para a direita (360°).
 function polar(radius, percent) {
   const angle = Math.PI + (Math.PI * percent) / 100
@@ -72,14 +87,25 @@ function SpeedometerProgress({ progress }) {
             </linearGradient>
           </defs>
 
-          <path className="gauge-track" d={ARC_PATH} pathLength="100" />
+          <path
+            className="gauge-track"
+            d={ARC_PATH}
+            pathLength="100"
+            fill="none"
+            stroke={GAUGE_PAINT.track}
+            strokeWidth={GAUGE_PAINT.arcWidth}
+            strokeLinecap="round"
+          />
           {normalized > 0 ? (
             <path
               className="gauge-value"
               d={ARC_PATH}
               pathLength="100"
+              fill="none"
               stroke={`url(#${gradientId})`}
-              style={{ strokeDasharray: `${normalized} 100` }}
+              strokeWidth={GAUGE_PAINT.arcWidth}
+              strokeLinecap="round"
+              strokeDasharray={`${normalized} 100`}
             />
           ) : null}
 
@@ -92,27 +118,51 @@ function SpeedometerProgress({ progress }) {
               return (
                 <line
                   key={value}
-                  className={major ? 'gauge-tick is-major' : 'gauge-tick'}
                   x1={inner.x}
                   y1={inner.y}
                   x2={outer.x}
                   y2={outer.y}
+                  stroke={major ? GAUGE_PAINT.tickMajor : GAUGE_PAINT.tick}
+                  strokeWidth={major ? 2.6 : 1.6}
+                  strokeLinecap="round"
                 />
               )
             })}
           </g>
 
-          <polygon className="gauge-needle" points={needlePoints(normalized)} fill={ramp.to} />
-          <circle className="gauge-hub-outer" cx={GAUGE.cx} cy={GAUGE.cy} r="10.5" stroke={ramp.to} />
-          <circle className="gauge-hub-inner" cx={GAUGE.cx} cy={GAUGE.cy} r="4.4" fill={ramp.to} />
+          <polygon
+            points={needlePoints(normalized)}
+            fill={ramp.to}
+            stroke="#ffffff"
+            strokeWidth="1.1"
+            strokeLinejoin="round"
+          />
+          <circle cx={GAUGE.cx} cy={GAUGE.cy} r="10.5" fill="#ffffff" stroke={ramp.to} strokeWidth="3.4" />
+          <circle cx={GAUGE.cx} cy={GAUGE.cy} r="4.4" fill={ramp.to} />
 
           {/* Leitura abaixo do cubo, fora do semicírculo: o ponteiro varre
               todo o interior do arco, então qualquer texto ali seria
               atravessado por ele em algum valor. */}
-          <text className="gauge-number" x={GAUGE.cx} y="157" textAnchor="middle">
+          <text
+            className="gauge-number"
+            x={GAUGE.cx}
+            y="157"
+            textAnchor="middle"
+            fill={GAUGE_PAINT.ink}
+            fontSize="30"
+            fontWeight="880"
+          >
             {normalized}%
           </text>
-          <text className="gauge-status" x={GAUGE.cx} y="175" textAnchor="middle">
+          <text
+            className="gauge-status"
+            x={GAUGE.cx}
+            y="175"
+            textAnchor="middle"
+            fill={GAUGE_PAINT.inkMuted}
+            fontSize="12.5"
+            fontWeight="800"
+          >
             {status}
           </text>
         </svg>

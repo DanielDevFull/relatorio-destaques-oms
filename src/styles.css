@@ -1671,42 +1671,11 @@ button:disabled {
   overflow: visible;
 }
 
-.gauge-track,
+/* Cor, traço e tamanho do velocímetro vivem como atributos SVG no
+   componente — ver GAUGE_PAINT em ReportPreview.jsx. Aqui fica só o que
+   atributo não expressa: a transição e o ajuste tipográfico. */
 .gauge-value {
-  fill: none;
-  stroke-width: 15;
-}
-
-.gauge-track {
-  stroke: #e4eaeb;
-  stroke-linecap: round;
-}
-
-.gauge-value {
-  stroke-linecap: round;
   transition: stroke-dasharray var(--duration-slow) var(--ease-spring-3);
-}
-
-.gauge-tick {
-  stroke: #b6c1c3;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-}
-
-.gauge-tick.is-major {
-  stroke: #7d8b8d;
-  stroke-width: 2.6;
-}
-
-.gauge-needle {
-  stroke: #fff;
-  stroke-width: 1.1;
-  stroke-linejoin: round;
-}
-
-.gauge-hub-outer {
-  fill: #fff;
-  stroke-width: 3.4;
 }
 
 .gauge-number,
@@ -1716,16 +1685,10 @@ button:disabled {
 }
 
 .gauge-number {
-  fill: var(--slide-ink);
-  font-size: 30px;
-  font-weight: 880;
   letter-spacing: -0.045em;
 }
 
 .gauge-status {
-  fill: var(--slide-ink-muted);
-  font-size: 12.5px;
-  font-weight: 800;
   letter-spacing: 0.012em;
 }
 
