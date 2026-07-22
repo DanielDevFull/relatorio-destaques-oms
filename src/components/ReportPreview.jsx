@@ -1,106 +1,27 @@
-import { useId } from 'react'
 import { ArrowRight, CalendarDays, Clock3, Maximize2, ShieldCheck } from 'lucide-react'
 import { REPORT_LOGO } from '../data.js'
 import { formatDate, progressLabel } from '../utils/formatters.js'
 import { PhotoMedia } from './PhotoMedia.jsx'
 
-const SPEEDOMETER_TICKS = [0, 25, 50, 75, 100]
-const SPEEDOMETER_LABELS = [0, 50, 100]
-const SPEEDOMETER_PATH = 'M 16 66 A 44 44 0 0 1 104 66'
-
-function getSpeedometerPoint(value, radius) {
-  const angle = Math.PI + (Math.PI * value) / 100
-  return {
-    x: 60 + radius * Math.cos(angle),
-    y: 66 + radius * Math.sin(angle),
-  }
-}
-
-function SpeedometerProgress({ progress }) {
+// Uma razão única contra um limite pede um medidor, não um velocímetro: o
+// número é o protagonista e a barra dá a leitura periférica. Sem SVG — o
+// medidor é layout puro, o que o torna trivialmente seguro na rasterização.
+function ProgressMeter({ progress }) {
   const normalized = Math.max(0, Math.min(100, Number(progress) || 0))
-  const gradientId = `speedometer-gradient-${useId().replaceAll(':', '')}`
-  const needlePoint = getSpeedometerPoint(normalized, 31)
   const status = progressLabel(normalized)
+  const state = normalized >= 100 ? 'complete' : normalized > 0 ? 'running' : 'idle'
 
   return (
-    <section className="speedometer-progress" aria-label={`Velocímetro da OM: ${normalized}% ${status}`}>
+    <section
+      className={`progress-meter is-${state}`}
+      aria-label={`Progresso da OM: ${normalized}% ${status}`}
+    >
       <h4>Progresso da OM</h4>
-      <div className="speedometer-chart">
-        <svg viewBox="0 0 120 103" role="img" aria-hidden="true">
-          <defs>
-            <linearGradient id={gradientId} x1="16" y1="66" x2="104" y2="66" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stopColor="#ECB11F" />
-              <stop offset="0.58" stopColor="#F6BF34" />
-              <stop offset="1" stopColor="#FFD86A" />
-            </linearGradient>
-          </defs>
-
-          <path
-            className="speedometer-track"
-            d={SPEEDOMETER_PATH}
-            pathLength="100"
-          />
-          {normalized > 0 && (
-            <path
-              className="speedometer-value"
-              d={SPEEDOMETER_PATH}
-              pathLength="100"
-              stroke={`url(#${gradientId})`}
-              strokeLinecap="round"
-              style={{ strokeDasharray: `${normalized} 100` }}
-            />
-          )}
-
-          <g className="speedometer-ticks">
-            {SPEEDOMETER_TICKS.map((value) => {
-              const innerPoint = getSpeedometerPoint(value, value % 50 === 0 ? 35.5 : 37.5)
-              const outerPoint = getSpeedometerPoint(value, 43.5)
-              return (
-                <line
-                  key={value}
-                  className={value % 50 === 0 ? 'speedometer-tick is-major' : 'speedometer-tick'}
-                  x1={innerPoint.x}
-                  y1={innerPoint.y}
-                  x2={outerPoint.x}
-                  y2={outerPoint.y}
-                />
-              )
-            })}
-          </g>
-
-          {SPEEDOMETER_LABELS.map((value) => {
-            const point = getSpeedometerPoint(value, 51)
-            return (
-              <text
-                key={value}
-                className="speedometer-scale-label"
-                x={point.x}
-                y={point.y + (value === 50 ? 2 : 10)}
-                textAnchor="middle"
-              >
-                {value}
-              </text>
-            )
-          })}
-
-          <line
-            className="speedometer-needle"
-            x1="60"
-            y1="66"
-            x2={needlePoint.x}
-            y2={needlePoint.y}
-          />
-          <circle className="speedometer-hub-outer" cx="60" cy="66" r="5.2" />
-          <circle className="speedometer-hub-inner" cx="60" cy="66" r="2.25" />
-
-          <text className="speedometer-number" x="60" y="88" textAnchor="middle">
-            {normalized}%
-          </text>
-          <text className="speedometer-status" x="60" y="99" textAnchor="middle">
-            {status}
-          </text>
-        </svg>
+      <strong className="meter-value">{normalized}%</strong>
+      <div className="meter-track" aria-hidden="true">
+        <div className="meter-fill" style={{ width: `${normalized}%` }} />
       </div>
+      <span className="meter-status">{status}</span>
     </section>
   )
 }
@@ -166,7 +87,7 @@ export function ReportPreview({ report }) {
             <h4>Impacto</h4>
             <p>{report.impact || 'Adicione o impacto gerado pela entrega.'}</p>
           </section>
-          <SpeedometerProgress progress={report.progress} />
+          <ProgressMeter progress={report.progress} />
         </aside>
       </section>
 

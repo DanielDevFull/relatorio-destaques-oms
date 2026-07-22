@@ -1622,7 +1622,7 @@ button:disabled {
 }
 
 .insight-block h4,
-.speedometer-progress h4 {
+.progress-meter h4 {
   margin: 0 0 0.5cqw;
   color: var(--vale-green);
   font-size: clamp(7px, 0.96cqw, 12.5px);
@@ -1641,106 +1641,107 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
-.speedometer-progress {
+/* --- Medidor de progresso ---------------------------------------------
+   Substitui o velocímetro SVG. A cor sai do estado; a trilha é um passo
+   mais claro da MESMA rampa, para o estado ser legível na barra inteira.
+   O número usa figuras proporcionais (não tabular-nums): em tamanho de
+   display o tabular deixa "100%" frouxo. */
+.progress-meter {
+  --meter-fill: var(--vale-gray);
+  --meter-track: rgba(116, 118, 120, 0.16);
+
   min-height: 0;
   padding-top: 0.65cqw;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  gap: 0.34cqw;
 }
 
-.speedometer-progress h4 {
-  margin-bottom: 0.5cqw;
-  text-align: center;
+.progress-meter.is-running {
+  --meter-fill: var(--vale-yellow);
+  --meter-track: rgba(236, 177, 31, 0.2);
 }
 
-/* Idem: gradiente opaco no lugar de vidro real. */
-.speedometer-chart {
-  position: relative;
-  width: min(17cqw, 100%);
-  padding: 0.5cqw 0.65cqw 0.25cqw;
-  border-radius: 1.18cqw;
-  background: linear-gradient(150deg, #fff, #eff5f5);
-  box-shadow:
-    inset 0 max(1px, 0.08cqw) 0 #fff,
-    0 0.5cqw 1.3cqw rgba(28, 44, 48, 0.12);
+.progress-meter.is-complete {
+  --meter-fill: var(--vale-green);
+  --meter-track: rgba(0, 126, 122, 0.14);
 }
 
-.speedometer-chart svg {
+.progress-meter h4 {
+  margin-bottom: 0.1cqw;
+}
+
+/* O número é o protagonista e fica em tinta, não na cor do estado: tinta
+   dá ~16:1 de contraste contra o branco do slide, o verde daria ~5:1 e o
+   amarelo reprovaria. A barra e o rótulo carregam o estado. */
+.meter-value {
+  color: var(--slide-ink);
+  font-size: clamp(15px, 3.05cqw, 40px);
+  font-weight: 880;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+}
+
+.meter-track {
   width: 100%;
+  height: 0.86cqw;
+  min-height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--meter-track);
+}
+
+.meter-fill {
   height: 100%;
-  display: block;
-  overflow: visible;
+  border-radius: 999px;
+  background: var(--meter-fill);
+  transition: width var(--duration-slow) var(--ease-spring-3);
 }
 
-.speedometer-track,
-.speedometer-value {
-  fill: none;
-  stroke-width: 8.5;
-}
-
-.speedometer-track {
-  stroke: #e2e9ea;
-}
-
-.speedometer-value {
-  stroke-linecap: round;
-  transition: stroke-dasharray var(--duration-slow) var(--ease-spring-3);
-}
-
-.speedometer-tick {
-  stroke: rgba(75, 91, 95, 0.5);
-  stroke-width: 1.35;
-  stroke-linecap: round;
-}
-
-.speedometer-tick.is-major {
-  stroke: #445457;
-  stroke-width: 1.75;
-}
-
-.speedometer-scale-label {
-  fill: var(--slide-ink-muted);
-  font-family: var(--font-system);
-  font-size: 7px;
+.meter-status {
+  color: var(--slide-ink-muted);
+  font-size: clamp(6px, 0.88cqw, 11.5px);
   font-weight: 800;
+  letter-spacing: 0.012em;
 }
 
-.speedometer-needle {
-  stroke: var(--vale-green);
-  stroke-width: 3.1;
-  stroke-linecap: round;
-}
+/* Abaixo de ~620px de slide, os pisos de legibilidade do clamp() inflam todo
+   o texto acima da proporção (a 391px o corpo renderiza 7px onde o
+   proporcional seria 4.3px). A linha 1fr do medidor é espremida a ~10px e o
+   conteúdo invadiria o bloco de impacto e a faixa de indicadores. Aqui os
+   blocos de texto passam a poder encolher, o medidor garante sua altura de
+   conteúdo e o excedente é aparado em vez de colidir. */
+@container (max-width: 620px) {
+  .report-insights {
+    grid-template-rows: minmax(0, auto) minmax(0, auto) auto;
+  }
 
-.speedometer-hub-outer {
-  fill: #fff;
-  stroke: var(--vale-green);
-  stroke-width: 2.6;
-}
+  .insight-block {
+    overflow: hidden;
+  }
 
-.speedometer-hub-inner {
-  fill: var(--vale-green);
-}
+  .progress-meter {
+    padding-top: 0.4cqw;
+    gap: 0.25cqw;
+  }
 
-.speedometer-number,
-.speedometer-status {
-  font-family: var(--font-system);
-  dominant-baseline: alphabetic;
-}
+  .progress-meter h4 {
+    font-size: 6.5px;
+  }
 
-.speedometer-number {
-  fill: var(--vale-green);
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-}
+  .meter-value {
+    font-size: 12px;
+  }
 
-.speedometer-status {
-  fill: var(--slide-ink-muted);
-  font-size: 6.4px;
-  font-weight: 800;
-  letter-spacing: 0.01em;
+  .meter-track {
+    height: 2.5px;
+    min-height: 2.5px;
+  }
+
+  .meter-status {
+    font-size: 6px;
+  }
 }
 
 .report-stats {
