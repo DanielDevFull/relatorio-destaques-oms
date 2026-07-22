@@ -2414,62 +2414,6 @@ button:disabled {
 
 /* --- Capa -------------------------------------------------------------- */
 
-.cover-head {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.cover-head .report-logo {
-  width: 16cqw;
-  height: 4.8cqw;
-}
-
-.cover-title {
-  min-width: 0;
-  align-self: center;
-}
-
-.cover-title h2 {
-  margin: 0;
-  color: var(--vale-green);
-  font-size: clamp(18px, 5.4cqw, 74px);
-  font-weight: 870;
-  letter-spacing: -0.04em;
-  line-height: 0.96;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-
-.cover-title p {
-  margin: 1cqw 0 0;
-  padding-top: 1cqw;
-  max-width: 72%;
-  border-top: max(1px, 0.22cqw) solid var(--vale-yellow);
-  color: var(--slide-ink-soft);
-  font-size: clamp(8px, 1.5cqw, 21px);
-  font-weight: 720;
-  overflow-wrap: anywhere;
-}
-
-.cover-meta {
-  margin-top: 1.6cqw;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2.6cqw;
-}
-
-.cover-meta span {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2cqw;
-  color: var(--slide-ink);
-  font-size: clamp(8px, 1.32cqw, 18px);
-  font-weight: 800;
-  overflow-wrap: anywhere;
-}
-
-.cover-meta b,
 .closing-people b {
   color: var(--vale-green);
   font-size: clamp(6px, 0.86cqw, 11px);
@@ -2649,4 +2593,144 @@ button:disabled {
 
 .closing-message {
   align-self: end;
+}
+
+/* =========================================================================
+   Capa — inspirada no material manual
+   ========================================================================= */
+
+.report-cover {
+  display: block;
+  padding: 0;
+  background: #eff1f1;
+}
+
+/* A paisagem ocupa o canto inferior direito e fica atrás do conteúdo. */
+.cover-artwork {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 31%;
+  display: block;
+  pointer-events: none;
+}
+
+.cover-body {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 4cqw 4.2cqw 2cqw;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 1.5cqw;
+}
+
+.cover-headline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 2cqw;
+}
+
+/* Barra amarela à esquerda do título, como no material original. */
+.cover-titleblock {
+  min-width: 0;
+  padding-left: 1.5cqw;
+  border-left: 0.62cqw solid var(--vale-yellow);
+}
+
+.cover-titleblock h2 {
+  margin: 0;
+  color: var(--vale-green);
+  font-size: clamp(18px, 5.6cqw, 78px);
+  font-weight: 880;
+  letter-spacing: -0.045em;
+  line-height: 0.94;
+  overflow-wrap: anywhere;
+}
+
+.cover-titleblock p {
+  margin: 0.5cqw 0 0;
+  color: #6c7679;
+  font-size: clamp(8px, 1.72cqw, 24px);
+  font-weight: 780;
+  line-height: 1.24;
+  overflow-wrap: anywhere;
+}
+
+.cover-week {
+  color: var(--vale-green);
+  font-size: clamp(16px, 4.4cqw, 62px);
+  font-weight: 880;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.cover-logos {
+  display: flex;
+  align-items: center;
+  gap: 2.2cqw;
+}
+
+.cover-logos .report-logo {
+  width: 15cqw;
+  height: 4.5cqw;
+}
+
+.cover-crew {
+  align-self: start;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.16cqw;
+  max-width: 52%;
+}
+
+.cover-crew > strong {
+  margin-bottom: 0.4cqw;
+  color: var(--vale-orange);
+  font-size: clamp(6px, 0.94cqw, 12px);
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cover-crew span {
+  color: #55605f;
+  font-size: clamp(6px, 0.96cqw, 13px);
+  font-weight: 620;
+  line-height: 1.22;
+  overflow-wrap: anywhere;
+}
+
+.cover-crew b {
+  color: #26332f;
+  font-weight: 830;
+}
+
+/* A faixa de indicadores fica sobre a base clara, à esquerda da paisagem. */
+.cover-summary {
+  max-width: 78%;
+  padding-top: 1.3cqw;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.2cqw;
+  border-top: max(1px, 0.14cqw) solid var(--vale-green);
+}
+
+/* Em slide estreito os pisos do clamp() incham o texto acima da proporção e
+   o bloco de equipe encosta nas montanhas. A faixa de arte recua um pouco. */
+@container (max-width: 620px) {
+  .cover-artwork {
+    height: 26%;
+  }
+
+  .cover-body {
+    padding: 3.4cqw 4.2cqw 1.6cqw;
+    gap: 1.1cqw;
+  }
 }

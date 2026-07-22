@@ -183,7 +183,7 @@ function Stat({ icon: Icon, label, value }) {
   )
 }
 
-export function ReportPreview({ report }) {
+export function ReportPreview({ report, deckTitle }) {
   const sameDate = report.startDate === report.endDate
   const periodValue = sameDate
     ? formatDate(report.startDate)
@@ -193,7 +193,7 @@ export function ReportPreview({ report }) {
     <article className="report-page" data-slide-id={report.id}>
       <header className="report-header">
         <div className="report-heading">
-          <h2>Destaques Operacionais</h2>
+          <h2>{deckTitle || 'Report Bem Estar'}</h2>
           <p>{report.weekReference || 'Semana'} <i /> {report.site || 'Unidade'}</p>
         </div>
         <img className="report-logo" src={REPORT_LOGO} alt="Grupo GPS e GRSA" />

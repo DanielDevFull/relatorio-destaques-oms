@@ -21,8 +21,15 @@ function normalizeReport(report = {}) {
   }
 }
 
+// O report passou a se chamar "Bem Estar". Quem já usava tem o nome antigo
+// gravado, que sobrepõe o padrão novo — então migra só esse valor exato,
+// preservando qualquer título que o usuário tenha escrito.
+const LEGACY_COVER_TITLE = 'Destaques Operacionais'
+
 function normalizeDeck(deck) {
-  return { ...defaultDeck, ...(deck || {}) }
+  const merged = { ...defaultDeck, ...(deck || {}) }
+  if (merged.coverTitle === LEGACY_COVER_TITLE) merged.coverTitle = defaultDeck.coverTitle
+  return merged
 }
 
 function loadInitialPresentation() {

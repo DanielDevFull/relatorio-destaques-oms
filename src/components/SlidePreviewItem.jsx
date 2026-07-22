@@ -15,6 +15,7 @@ export function SlidePreviewItem({
   onDelete,
   label,
   children,
+  deckTitle,
 }) {
   const isDeckPage = Boolean(children)
   const domId = isDeckPage ? `slide-preview-${label}` : `slide-preview-${report.id}`
@@ -63,7 +64,7 @@ export function SlidePreviewItem({
         onClick={onSelect}
         onKeyDown={handleKeyDown}
       >
-        {isDeckPage ? children : <ReportPreview report={report} />}
+        {isDeckPage ? children : <ReportPreview report={report} deckTitle={deckTitle} />}
       </div>
     </section>
   )

@@ -250,11 +250,11 @@ function DeckSection({ deck, updateDeckField, summary }) {
         title="Capa e fecho"
         subtitle="Geradas automaticamente — os números somam das OMs."
       />
-      <Field label="Título da capa">
+      <Field label="Nome do report" hint="Aparece na capa e no cabeçalho de todos os slides.">
         <TextInput
           value={deck.coverTitle}
           onChange={(value) => updateDeckField('coverTitle', value)}
-          placeholder="Ex.: Destaques Operacionais"
+          placeholder="Ex.: Report Bem Estar"
           maxLength="46"
         />
       </Field>
@@ -266,6 +266,42 @@ function DeckSection({ deck, updateDeckField, summary }) {
           maxLength="70"
         />
       </Field>
+
+      <SectionHeading
+        icon={UsersRound}
+        title="Equipe da capa"
+        subtitle="Fica salvo só neste navegador — não vai para o código."
+      />
+      <div className="field-grid field-grid-2">
+        <Field label="Preposto" hint="Vazio usa o Fiscal das OMs.">
+          <TextInput
+            value={deck.preposto}
+            onChange={(value) => updateDeckField('preposto', value)}
+            maxLength="50"
+          />
+        </Field>
+        <Field label="Coord Plan">
+          <TextInput
+            value={deck.coordPlan}
+            onChange={(value) => updateDeckField('coordPlan', value)}
+            maxLength="50"
+          />
+        </Field>
+        <Field label="Planner">
+          <TextInput
+            value={deck.planner}
+            onChange={(value) => updateDeckField('planner', value)}
+            maxLength="50"
+          />
+        </Field>
+        <Field label="Supervisor" hint="Vazio usa o Supervisor das OMs.">
+          <TextInput
+            value={deck.deckSupervisor}
+            onChange={(value) => updateDeckField('deckSupervisor', value)}
+            maxLength="50"
+          />
+        </Field>
+      </div>
 
       <SectionHeading icon={ShieldCheck} title="Página final" />
       <Field label="Título do fecho">

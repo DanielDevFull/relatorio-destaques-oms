@@ -31,10 +31,19 @@ export const defaultReport = {
 // slide: são uma capa e uma final por deck, e os números delas são somados
 // das OMs (ver utils/summary.js).
 export const defaultDeck = {
-  coverTitle: 'Destaques Operacionais',
+  coverTitle: 'Report Bem Estar',
   coverSubtitle: '',
   closingTitle: 'Resumo da Semana',
   closingMessage: 'Obrigado',
+
+  // Equipe da capa. Ficam vazios de propósito: o repositório é público e
+  // nomes de pessoas não entram no código — preencha no app, que os dados
+  // ficam só no seu navegador. Preposto e supervisor caem para o Fiscal e o
+  // Supervisor das OMs quando não preenchidos.
+  preposto: '',
+  coordPlan: '',
+  planner: '',
+  deckSupervisor: '',
 }
 
 export const classificationOptions = [

@@ -192,6 +192,7 @@ export default function App() {
                 index={index}
                 isActive={slide.id === activeSlideId}
                 canDelete={slides.length > 1}
+                deckTitle={deck.coverTitle}
                 onSelect={() => selectReport(slide.id)}
                 onDuplicate={() => handleDuplicateReport(slide.id)}
                 onDelete={() => handleDeleteReport(slide.id)}
