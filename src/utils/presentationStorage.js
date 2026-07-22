@@ -45,7 +45,3 @@ export function loadPresentation() {
 export function savePresentation(presentation) {
   return runTransaction('readwrite', (store) => store.put(presentation, CURRENT_PRESENTATION_KEY))
 }
-
-export function clearPresentation() {
-  return runTransaction('readwrite', (store) => store.delete(CURRENT_PRESENTATION_KEY))
-}

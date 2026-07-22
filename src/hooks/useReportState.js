@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { defaultReport, REPORT_LOGO } from '../data.js'
-import {
-  clearPresentation,
-  loadPresentation,
-  savePresentation,
-} from '../utils/presentationStorage.js'
+import { loadPresentation, savePresentation } from '../utils/presentationStorage.js'
 
 const STORAGE_KEY = 'relatorio-premium:v5'
 const LEGACY_STORAGE_KEYS = ['relatorio-premium:v4', 'relatorio-premium:v3']
@@ -68,13 +64,20 @@ function normalizePresentation(presentation) {
   }
 }
 
+// As fotos importadas viram data URLs de vários MB e estouram a cota do
+// localStorage (~5 MB) já no segundo slide. O IndexedDB guarda a apresentação
+// completa; aqui fica só o texto, como fallback.
+function withoutImportedPhoto(photo) {
+  return photo && photo.type === 'data' ? '' : photo
+}
+
 function lightweightSnapshot(presentation) {
   return {
     ...presentation,
     slides: presentation.slides.map((slide) => ({
       ...slide,
-      beforePhoto: typeof slide.beforePhoto === 'string' ? '' : slide.beforePhoto,
-      afterPhoto: typeof slide.afterPhoto === 'string' ? '' : slide.afterPhoto,
+      beforePhoto: withoutImportedPhoto(slide.beforePhoto),
+      afterPhoto: withoutImportedPhoto(slide.afterPhoto),
     })),
   }
 }
@@ -115,11 +118,20 @@ export function useReportState() {
     saveTimer.current = window.setTimeout(async () => {
       try {
         await savePresentation(presentation)
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lightweightSnapshot(presentation)))
-        setSaveState('saved')
       } catch {
         setSaveState('error')
+        return
       }
+
+      // O IndexedDB já guardou a apresentação completa; o snapshot em
+      // localStorage é best-effort e não deve derrubar o estado de salvo.
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lightweightSnapshot(presentation)))
+      } catch {
+        // Cota cheia ou modo privativo: o fallback fica desatualizado, só isso.
+      }
+
+      setSaveState('saved')
     }, 450)
 
     return () => window.clearTimeout(saveTimer.current)
@@ -141,15 +153,6 @@ export function useReportState() {
         ? current
         : { ...current, activeSlideId: slideId }
     ))
-  }, [])
-
-  const resetPresentation = useCallback(() => {
-    const firstSlide = normalizeReport(defaultReport)
-    setSaveState('saving')
-    setPresentation({ slides: [firstSlide], activeSlideId: firstSlide.id })
-    window.localStorage.removeItem(STORAGE_KEY)
-    LEGACY_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key))
-    clearPresentation().catch(() => {})
   }, [])
 
   const createNextReport = useCallback(() => {
@@ -230,7 +233,6 @@ export function useReportState() {
     report: activeReport,
     updateField,
     selectReport,
-    resetPresentation,
     createNextReport,
     duplicateReport,
     removeReport,
